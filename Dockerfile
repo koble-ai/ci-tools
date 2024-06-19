@@ -1,9 +1,8 @@
 FROM python:3.10-bullseye as base
-
-ARG AWSCLI_ARCH="linux-aarch64"
 ARG NVM_VERSION="0.39.7"
 ARG NODE_VERSION="18.19.0"
 ARG NPM_VERSION="10.2.5"
+ARG AWSCLI_ARCH="linux-aarch64"
 
 RUN echo "Starting Javascript..." && \
     git clone https://github.com/nvm-sh/nvm.git /root/.nvm && cd /root/.nvm && git checkout v${NVM_VERSION} && \
