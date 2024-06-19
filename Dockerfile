@@ -4,7 +4,7 @@ ARG NODE_VERSION=18.19.0
 ARG NPM_VERSION=10.2.5
 ARG NVM_VERSION=0.39.7
 
-RUN git clone https://github.com/creationix/nvm.git /root/.nvm && cd /root/.nvm && git checkout v${NVM_VERSION} && \
+RUN git clone https://github.com/nvm-sh/nvm.git /root/.nvm && cd /root/.nvm && git checkout v${NVM_VERSION} && \
     . /root/.nvm/nvm.sh && \
     nvm install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && \
     ln -s /root/.nvm/versions/node/v${NODE_VERSION} /root/.nvm/versions/node/current && \
