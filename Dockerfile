@@ -1,21 +1,14 @@
-FROM python:3.10-bullseye
+FROM node:18
 
 ARG AWSCLI_ARCH="linux-aarch64"
 ARG NVM_VERSION="0.39.7"
 ARG NODE_VERSION="18.19.0"
 ARG NPM_VERSION="10.2.5"
 
-RUN echo "Starting Javascript..." && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash
-RUN nvm install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && \
-    npm install -g npm@${NPM_VERSION} && \
-    curl -sSL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list && \
-    apt-get update && apt-get install yarn --no-install-recommends && \
-    echo "Done JS!" && \
-    echo "Starting AWS" && \
+RUN echo "Starting AWS" && \
     curl https://awscli.amazonaws.com/awscli-exe-${AWSCLI_ARCH}.zip -o awscliv2.zip && \
     unzip -q awscliv2.zip && \
     ./aws/install && \
     rm -f awscliv2.zip && rm -rf aws && \
     echo "Done installing AWS"
+
