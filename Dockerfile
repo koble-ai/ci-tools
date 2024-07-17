@@ -1,12 +1,12 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.10.14-slim-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     NVM_DIR=/root/.nvm \
     PATH=/root/.nvm/versions/node/current/bin:usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-ARG ARCH="aarch64"
-ARG MODD_ARCH="linuxARM"
+ARG ARCH="x86_64"
+ARG MODD_ARCH="linux64"
 ARG NODE_VERSION=18.19.0
 ARG NPM_VERSION=10.2.5
 ARG NVM_VERSION=0.39.7
@@ -55,3 +55,9 @@ RUN echo "Starting ..." && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list && \
     apt-get update && apt-get install yarn --no-install-recommends && \
     echo "Done JS!"
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+ENV DIND_COMMIT 65cfcc28ab37cb75e1560e4b4738719c07c6618e
+
+RUN set -eux; \
+	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
+	chmod +x /usr/local/bin/dind
