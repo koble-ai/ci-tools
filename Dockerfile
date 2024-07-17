@@ -13,9 +13,11 @@ ARG NVM_VERSION=0.39.7
 ARG MODD_VERSION=0.5
 ARG TASKFILE_VERSION=3.2.2
 
+ENV DIND_COMMIT 65cfcc28ab37cb75e1560e4b4738719c07c6618e
+
 # Install system dependencies for python and pip
 RUN apt-get update -y && \
-    apt-get install curl unzip groff less -y  && \
+    apt-get install curl unzip groff less jq -y  && \
     pip install -U pip  && \
     # Installing AWS CLIv2
     curl "https://awscli.amazonaws.com/awscli-exe-linux-{$ARCH}.zip" -o "awscliv2.zip" && \
@@ -54,11 +56,11 @@ RUN echo "Starting ..." && \
     curl -sSL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list && \
     apt-get update && apt-get install yarn --no-install-recommends && \
-    echo "Done JS!"
-RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
-ENV DIND_COMMIT 65cfcc28ab37cb75e1560e4b4738719c07c6618e
+    echo "Done JS!" && \
+    curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
 
-RUN set -eux; \
-	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
-	chmod +x /usr/local/bin/dind
-RUN apt update && apt install jq -y
+RUN poetry --version
+
+#   RUN set -eux; \
+#	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
+#	chmod +x /usr/local/bin/dind
