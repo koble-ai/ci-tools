@@ -3,7 +3,8 @@ FROM python:3.10.14-slim-bullseye
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     NVM_DIR=/root/.nvm \
-    PATH=/root/.nvm/versions/node/current/bin:usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    POETRY_HOME=/opt/poetry \
+    PATH=/root/.nvm/versions/node/current/bin:usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
 
 ARG ARCH="x86_64"
 ARG MODD_ARCH="linux64"
