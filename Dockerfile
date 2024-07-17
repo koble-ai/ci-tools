@@ -61,3 +61,4 @@ ENV DIND_COMMIT 65cfcc28ab37cb75e1560e4b4738719c07c6618e
 RUN set -eux; \
 	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
 	chmod +x /usr/local/bin/dind
+RUN apt update && apt install jq -y
