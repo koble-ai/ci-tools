@@ -37,7 +37,7 @@ RUN apt-get update -y && \
 
 RUN echo "Starting ..." && \
     apt-get -qq clean && apt-get -qq update && \
-    apt-get -qq -y install libssl-dev curl git imagemagick make gnupg \
+    apt-get -qq -y install libssl-dev curl git imagemagick apt-transport-https ca-certificates gnupg make gnupg \
       libmcrypt-dev libreadline-dev ruby-full openssh-client ocaml libelf-dev bzip2 gcc g++ jq && \
     gem install rb-inotify:'~> 0.9.10' sass --verbose && \
     gem install scss_lint:'~> 0.57.1' --verbose && \
@@ -59,7 +59,11 @@ RUN echo "Starting ..." && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list && \
     apt-get update && apt-get install yarn --no-install-recommends && \
     echo "Done JS!" && \
-    curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+    curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && \
+    echo "Starting gcloud..." && \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    apt-get update && apt-get install google-cloud-cli kubectl
+
 
 RUN poetry --version
 
