@@ -15,7 +15,7 @@ ARG MODD_VERSION=0.5
 ARG TASKFILE_VERSION=3.2.2
 ARG POETRY_VERSION=1.8.5
 
-ENV DIND_COMMIT 65cfcc28ab37cb75e1560e4b4738719c07c6618e
+ENV DIND_COMMIT=65cfcc28ab37cb75e1560e4b4738719c07c6618e
 
 # Install system dependencies for python and pip
 RUN apt-get update -y && \
@@ -60,12 +60,6 @@ RUN echo "Starting ..." && \
     apt-get update && apt-get install yarn --no-install-recommends && \
     echo "Done JS!" && \
     curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
-RUN echo "Starting gcloud..." && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    apt-get update -y && \
-    apt-get install google-cloud-cli -y \
-    gcloud --version
 RUN echo "Starting kubectl..." && \
     curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
     chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
@@ -74,8 +68,15 @@ RUN echo "Starting kubectl..." && \
     apt-get update -y && \
     apt-get install kubectl -y
 
+RUN echo "Starting gcloud..." && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    apt-get update -y && \
+    apt-get install google-cloud-cli -y && \
+    gcloud --version
 
 RUN poetry --version
+RUN gcloud --version
 
 #   RUN set -eux; \
 #	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
