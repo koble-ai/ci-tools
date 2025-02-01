@@ -72,11 +72,11 @@ RUN echo "Starting gcloud..." && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     apt-get update -y && \
-    apt-get install google-cloud-cli -y && \
-    gcloud --version
+    apt-get install google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin -y
 
 RUN poetry --version
 RUN gcloud --version
+RUN gke-gcloud-auth-plugin --version
 
 #   RUN set -eux; \
 #	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
