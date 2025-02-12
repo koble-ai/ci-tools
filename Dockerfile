@@ -6,8 +6,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
     POETRY_HOME=/opt/poetry \
     PATH=/root/.nvm/versions/node/current/bin:usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
 
-ARG ARCH="x86_64"
-ARG MODD_ARCH="linux64"
 ARG NODE_VERSION=18.19.0
 ARG NPM_VERSION=10.2.5
 ARG NVM_VERSION=0.39.7
@@ -22,7 +20,7 @@ RUN apt-get update -y && \
     apt-get install curl unzip groff less jq -y  && \
     pip install -U pip  && \
     # Installing AWS CLIv2
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-{$ARCH}.zip" -o "awscliv2.zip" && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-{$TARGETARCH}.zip" -o "awscliv2.zip" && \
     unzip -q awscliv2.zip && \
     ./aws/install && \
     rm -rf aws && \
@@ -41,10 +39,11 @@ RUN echo "Starting ..." && \
       libmcrypt-dev libreadline-dev ruby-full openssh-client ocaml libelf-dev bzip2 gcc g++ jq && \
     gem install rb-inotify:'~> 0.9.10' sass --verbose && \
     gem install scss_lint:'~> 0.57.1' --verbose && \
-    echo "Done base install!" && \
-    echo "Install Modd" && \
-    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-${MODD_ARCH}.tgz | tar -xOvzf - modd-${MODD_VERSION}-${MODD_ARCH}/modd > /usr/bin/modd  && \
-    chmod 755 /usr/bin/modd && \
+    echo "Done base install!" \
+RUN if [[ "$TARGETARCH" == "amd64" ]]; then \
+    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linux64.tgz | tar -xOvzf - modd-${MODD_VERSION}-linux64/modd > /usr/bin/modd; then \
+    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linuxARM.tgz | tar -xOvzf - modd-${MODD_VERSION}-linuxARM/modd > /usr/bin/modd
+RUN chmod 755 /usr/bin/modd && \
     echo "Done Install Modd" && \
     echo "Install Taskfile" && \
     curl -sSL https://taskfile.dev/install.sh | sh -s v${TASKFILE_VERSION} && \
