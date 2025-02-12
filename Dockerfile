@@ -20,11 +20,12 @@ ENV DIND_COMMIT=65cfcc28ab37cb75e1560e4b4738719c07c6618e
 # Install system dependencies for python and pip
 RUN apt-get update -y && \
     apt-get install curl unzip groff less jq -y  && \
-    pip install -U pip \
+    pip install -U pip
 RUN if [[ "$TARGETARCH" == "amd64" ]]; then \
-    # Installing AWS CLIv2
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; then \
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; \
+    else \
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"; \
+    fi
 RUN unzip -q awscliv2.zip && \
     ./aws/install && \
     rm -rf aws && \
@@ -42,10 +43,12 @@ RUN echo "Starting ..." && \
       libmcrypt-dev libreadline-dev ruby-full openssh-client ocaml libelf-dev bzip2 gcc g++ jq && \
     gem install rb-inotify:'~> 0.9.10' sass --verbose && \
     gem install scss_lint:'~> 0.57.1' --verbose && \
-    echo "Done base install!" \
+    echo "Done base install!"
 RUN if [[ "$TARGETARCH" == "amd64" ]]; then \
-    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linux64.tgz | tar -xOvzf - modd-${MODD_VERSION}-linux64/modd > /usr/bin/modd; then \
-    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linuxARM.tgz | tar -xOvzf - modd-${MODD_VERSION}-linuxARM/modd > /usr/bin/modd
+    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linux64.tgz | tar -xOvzf - modd-${MODD_VERSION}-linux64/modd > /usr/bin/modd; \
+    else \
+    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linuxARM.tgz | tar -xOvzf - modd-${MODD_VERSION}-linuxARM/modd > /usr/bin/modd; \
+    fi
 RUN chmod 755 /usr/bin/modd && \
     echo "Done Install Modd" && \
     echo "Install Taskfile" && \
