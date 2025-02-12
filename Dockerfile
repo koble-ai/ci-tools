@@ -20,10 +20,12 @@ ENV DIND_COMMIT=65cfcc28ab37cb75e1560e4b4738719c07c6618e
 # Install system dependencies for python and pip
 RUN apt-get update -y && \
     apt-get install curl unzip groff less jq -y  && \
-    pip install -U pip  && \
+    pip install -U pip \
+RUN if [[ "$TARGETARCH" == "amd64" ]]; then \
     # Installing AWS CLIv2
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-${TARGETARCH}.zip" -o "awscliv2.zip" && \
-    unzip -q awscliv2.zip && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; then \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+RUN unzip -q awscliv2.zip && \
     ./aws/install && \
     rm -rf aws && \
     rm -f awscliv2.zip && \
@@ -34,7 +36,6 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old && \
     # Install Poetry
     curl -sSL https://install.python-poetry.org | python3 -
-
 RUN echo "Starting ..." && \
     apt-get -qq clean && apt-get -qq update && \
     apt-get -qq -y install libssl-dev curl git imagemagick apt-transport-https ca-certificates gnupg make gnupg \
