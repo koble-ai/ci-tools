@@ -36,7 +36,7 @@ RUN unzip -q awscliv2.zip && \
     apt-get -qq clean && apt-get -qq purge && \
     rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old && \
     # Install Poetry
-    curl -sSL https://install.python-poetry.org | python3 - \
+    curl -sSL https://install.python-poetry.org | python3 -
 RUN apt-get update -y && apt-get install g++ gcc -y
 RUN echo "Starting ..." && \
     apt-get -qq clean && apt-get -qq update && \
