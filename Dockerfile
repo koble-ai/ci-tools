@@ -45,9 +45,9 @@ RUN echo "Starting ..." && \
     gem install scss_lint:'~> 0.57.1' --verbose && \
     echo "Done base install!"
 RUN if [[ "$TARGETARCH" == "amd64" ]]; then \
-    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linux64.tgz | tar -xOvzf - modd-${MODD_VERSION}-linux64/modd > /usr/bin/modd; \
+      curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linux64.tgz | tar -xOvzf - modd-${MODD_VERSION}-linux64/modd > /usr/bin/modd; \
     else \
-    curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linuxARM.tgz | tar -xOvzf - modd-${MODD_VERSION}-linuxARM/modd > /usr/bin/modd; \
+      curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linuxARM.tgz | tar -xOvzf - modd-${MODD_VERSION}-linuxARM/modd > /usr/bin/modd; \
     fi
 RUN chmod 755 /usr/bin/modd && \
     echo "Done Install Modd" && \
