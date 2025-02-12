@@ -22,7 +22,7 @@ RUN apt-get update -y && \
     apt-get install curl unzip groff less jq -y  && \
     pip install -U pip  && \
     # Installing AWS CLIv2
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-$TARGETARCH.zip" -o "awscliv2.zip" && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-${TARGETARCH}.zip" -o "awscliv2.zip" && \
     unzip -q awscliv2.zip && \
     ./aws/install && \
     rm -rf aws && \
