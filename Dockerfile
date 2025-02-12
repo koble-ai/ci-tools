@@ -36,11 +36,12 @@ RUN unzip -q awscliv2.zip && \
     apt-get -qq clean && apt-get -qq purge && \
     rm -rf /var/lib/apt/lists/* /var/lib/dpkg/*-old && \
     # Install Poetry
-    curl -sSL https://install.python-poetry.org | python3 -
+    curl -sSL https://install.python-poetry.org | python3 - \
+RUN apt-get update -y && apt-get install g++ gcc -y
 RUN echo "Starting ..." && \
     apt-get -qq clean && apt-get -qq update && \
     apt-get -qq -y install libssl-dev curl git imagemagick apt-transport-https ca-certificates gnupg make gnupg \
-      libmcrypt-dev libreadline-dev ruby-full openssh-client ocaml libelf-dev bzip2 gcc g++ jq && \
+      libmcrypt-dev libreadline-dev ruby-full openssh-client ocaml libelf-dev bzip2 jq && \
     gem install rb-inotify:'~> 0.9.10' sass --verbose && \
     gem install scss_lint:'~> 0.57.1' --verbose && \
     echo "Done base install!"
