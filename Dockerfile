@@ -21,7 +21,7 @@ ENV DIND_COMMIT=65cfcc28ab37cb75e1560e4b4738719c07c6618e
 RUN apt-get update -y && \
     apt-get install curl unzip groff less jq -y  && \
     pip install -U pip
-RUN if [[ "$TARGETARCH" == "amd64" ]]; then \
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; \
     else \
       curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"; \
@@ -45,7 +45,7 @@ RUN echo "Starting ..." && \
 RUN gem install rb-inotify:'~> 0.11.1' sass --verbose && \
     gem install scss_lint:'~> 0.59.0' --verbose && \
     echo "Done base install!"
-RUN if [[ "$TARGETARCH" == "amd64" ]]; then \
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
       curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linux64.tgz | tar -xOvzf - modd-${MODD_VERSION}-linux64/modd > /usr/bin/modd; \
     else \
       curl -sSL https://github.com/cortesi/modd/releases/download/v${MODD_VERSION}/modd-${MODD_VERSION}-linuxARM.tgz | tar -xOvzf - modd-${MODD_VERSION}-linuxARM/modd > /usr/bin/modd; \
@@ -82,6 +82,7 @@ RUN echo "Starting gcloud..." && \
 
 RUN poetry --version
 RUN gcloud --version
+RUN aws --version
 RUN gke-gcloud-auth-plugin --version
 
 #   RUN set -eux; \
