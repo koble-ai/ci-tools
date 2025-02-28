@@ -19,7 +19,8 @@ ENV DIND_COMMIT=65cfcc28ab37cb75e1560e4b4738719c07c6618e
 
 # Install system dependencies for python and pip
 RUN apt-get update -y
-RUN apt-get install curl unzip -y
+RUN apt-get install unzip groff less jq -y
+RUN apt-get install curl -y
 RUN pip install -U pip
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; \
@@ -41,7 +42,7 @@ RUN apt-get update -y && apt-get install g++ gcc -y
 RUN echo "Starting ..." && \
     apt-get -qq clean && apt-get -qq update && \
     apt-get -qq -y install libssl-dev curl git imagemagick apt-transport-https ca-certificates gnupg make gnupg \
-      libmcrypt-dev libreadline-dev ruby-full openssh-client ocaml libelf-dev bzip2
+      libmcrypt-dev libreadline-dev ruby-full openssh-client ocaml libelf-dev bzip2 jq
 RUN gem install rb-inotify:'~> 0.11.1' sass --verbose && \
     gem install scss_lint:'~> 0.59.0' --verbose && \
     echo "Done base install!"
