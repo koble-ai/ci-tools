@@ -18,9 +18,9 @@ ARG TARGETARCH
 ENV DIND_COMMIT=65cfcc28ab37cb75e1560e4b4738719c07c6618e
 
 # Install system dependencies for python and pip
-RUN apt-get update -y && \
-    apt-get install curl unzip groff less jq -y  && \
-    pip install -U pip
+RUN apt-get update -y
+RUN apt-get install curl unzip groff less jq -y
+RUN pip install -U pip
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; \
     else \
