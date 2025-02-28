@@ -67,7 +67,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/arm64,linux/amd64
-          image: tonistiigi/binfmt:latest
+          image: tonistiigi/binfmt:master
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
