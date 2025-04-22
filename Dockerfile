@@ -1,4 +1,4 @@
-FROM python:3.11.0-slim-bullseye
+FROM python:3.11.12-slim-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
@@ -6,9 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     POETRY_HOME=/opt/poetry \
     PATH=/root/.nvm/versions/node/current/bin:usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
 
-ARG NODE_VERSION=18.19.0
-ARG NPM_VERSION=10.2.5
-ARG NVM_VERSION=0.39.7
+ARG NODE_VERSION=22.14.0
+ARG NPM_VERSION=11.3.0
+ARG NVM_VERSION=0.40.2
 ARG MODD_VERSION=0.5
 ARG TASKFILE_VERSION=3.2.2
 ARG POETRY_VERSION=1.8.5
