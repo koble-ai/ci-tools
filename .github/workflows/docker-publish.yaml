@@ -61,7 +61,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@latest
+        uses: docker/setup-qemu-action@v3.6.0
         with:
           image: tonistiigi/binfmt:master
 
