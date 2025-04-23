@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     POETRY_HOME=/opt/poetry \
     PATH=/root/.nvm/versions/node/current/bin:usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
 
-ARG NODE_VERSION=22.14.0
+ARG NODE_VERSION=22
 ARG NPM_VERSION=11.3.0
 ARG NVM_VERSION=0.40.2
 ARG MODD_VERSION=0.5
@@ -60,8 +60,9 @@ RUN chmod 755 /usr/bin/modd && \
     echo "Starting Javascript..."
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash && \
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
-    nvm install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && \
-    ln -s /root/.nvm/versions/node/v${NODE_VERSION} /root/.nvm/versions/node/current && \
+    nvm install ${NODE_VERSION} && \
+    nvm alias default ${NODE_VERSION} && \
+    ln -s /root/.nvm/versions/node/$(nvm version ${NODE_VERSION}) /root/.nvm/versions/node/current && \
     npm install -g npm@${NPM_VERSION} && \
     curl -sSL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list && \
