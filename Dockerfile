@@ -89,10 +89,6 @@ RUN gke-gcloud-auth-plugin --version
 RUN node --version
 RUN yarn --version
 
-# ENTRYPOINT ["bash", "-c", "source $NVM_DIR/nvm.sh && exec \"$@\"", "--"]
-# # set cmd to bash
-CMD ["/bin/bash"]
-
 #   RUN set -eux; \
 #	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
 #	chmod +x /usr/local/bin/dind
