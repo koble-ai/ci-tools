@@ -78,8 +78,8 @@ jobs:
           platforms: linux/arm64,linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:node-${{ matrix.node_version }}, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          # cache-from: type=local
-          # cache-to: type=local,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             NODE_VERSION=${{ matrix.node_version }}
 
