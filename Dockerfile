@@ -3,6 +3,7 @@ FROM python:3.11.12-slim-bullseye
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     NVM_DIR=/root/.nvm \
+    # BASH_ENV=/root/.bash_env \
     POETRY_HOME=/opt/poetry \
     PATH=/root/.nvm/versions/node/current/bin:usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
 
@@ -56,9 +57,9 @@ RUN chmod 755 /usr/bin/modd && \
     echo "Install Taskfile" && \
     curl -sSL https://taskfile.dev/install.sh | sh -s v${TASKFILE_VERSION} && \
     echo "Done Install Taskfile" && \
-    echo "Starting Javascript..." && \
-    git clone https://github.com/creationix/nvm.git /root/.nvm && cd /root/.nvm && git checkout v${NVM_VERSION} && \
-    . /root/.nvm/nvm.sh && \
+    echo "Starting Javascript..."
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash && \
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
     nvm install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && \
     ln -s /root/.nvm/versions/node/v${NODE_VERSION} /root/.nvm/versions/node/current && \
     npm install -g npm@${NPM_VERSION} && \
@@ -85,6 +86,12 @@ RUN poetry --version
 RUN gcloud --version
 RUN aws --version
 RUN gke-gcloud-auth-plugin --version
+RUN node --version
+RUN yarn --version
+
+# ENTRYPOINT ["bash", "-c", "source $NVM_DIR/nvm.sh && exec \"$@\"", "--"]
+# # set cmd to bash
+CMD ["/bin/bash"]
 
 #   RUN set -eux; \
 #	curl "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind" -o /usr/local/bin/dind && \
