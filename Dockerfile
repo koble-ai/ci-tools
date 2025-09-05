@@ -83,7 +83,12 @@ RUN echo "Starting gcloud..." && \
     apt-get update -y && \
     apt-get install google-cloud-cli google-cloud-sdk-gke-gcloud-auth-plugin -y
 
+RUN pip install uv keyring keyrings.codeartifact
+RUN npm i -g pyright pyright-to-gitlab-ci
+
 RUN poetry --version
+RUN uv --version
+RUN pyright --version
 RUN gcloud --version
 RUN aws --version
 RUN gke-gcloud-auth-plugin --version
