@@ -7,7 +7,9 @@
       "Bash(docker history:*)",
       "WebSearch",
       "Bash(git checkout:*)",
-      "Bash(git stash pop:*)"
+      "Bash(git stash pop:*)",
+      "WebFetch(domain:dl.yarnpkg.com)",
+      "Bash(curl -s https://checkpoint-api.hashicorp.com/v1/check/terraform)"
     ]
   }
 }

@@ -25,10 +25,11 @@ There are no tests, linters, or package managers — the project is a single Doc
 
 | ARG | Default | Notes |
 |-----|---------|-------|
-| `NODE_VERSION` | 22 | CI matrix builds both 20 and 22 |
+| `NODE_VERSION` | 22 | CI matrix builds 22, 24 and 26 |
 | `NPM_VERSION` | 11.3.0 | |
 | `NVM_VERSION` | 0.40.2 | |
 | `POETRY_VERSION` | 1.8.5 | |
+| `TERRAFORM_VERSION` | 1.15.8 | |
 | `TASKFILE_VERSION` | 3.2.2 | |
 | `MODD_VERSION` | 0.5 | |
 | `TARGETARCH` | auto | Set by buildx; controls amd64 vs arm64 download URLs |
@@ -37,9 +38,9 @@ There are no tests, linters, or package managers — the project is a single Doc
 
 `.github/workflows/docker-publish.yaml` — GitHub Actions workflow:
 - **Triggers**: push to `main`, version tags (`v*.*.*`), PRs to `main`
-- **Matrix**: builds Node 20 and Node 22 variants
+- **Matrix**: builds Node 22, 24 and 26 variants
 - **Platforms**: linux/arm64 and linux/amd64 via QEMU + buildx
-- **Registry**: `ghcr.io/koble-ai/ci-tools` with tags `node-20`, `node-22`, `latest`, and commit SHA
+- **Registry**: `ghcr.io/koble-ai/ci-tools` with tags `node-22`, `node-24`, `node-26`, `latest`, and commit SHA
 - **Signing**: cosign signs images on non-PR builds
 
 ## Architecture Notes

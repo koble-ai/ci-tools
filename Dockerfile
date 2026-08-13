@@ -12,6 +12,7 @@ ARG NVM_VERSION=0.40.2
 ARG MODD_VERSION=0.5
 ARG TASKFILE_VERSION=3.2.2
 ARG POETRY_VERSION=1.8.5
+ARG TERRAFORM_VERSION=1.15.8
 ARG TARGETARCH
 
 # ---------- 1. System packages (single layer) ----------
@@ -66,6 +67,13 @@ RUN set -ex && \
     chmod 755 /usr/bin/modd && \
     # --- Taskfile --- \
     curl -fsSL https://taskfile.dev/install.sh | sh -s v${TASKFILE_VERSION} && \
+    # --- Terraform --- \
+    curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" && \
+    curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS" -o terraform_SHA256SUMS && \
+    grep " terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" terraform_SHA256SUMS | sha256sum -c - && \
+    unzip -q "terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" -d /usr/local/bin terraform && \
+    rm -f "terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" terraform_SHA256SUMS && \
+    chmod 755 /usr/local/bin/terraform && \
     # --- NVM / Node / npm / yarn --- \
     curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh" | bash && \
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
@@ -102,5 +110,6 @@ RUN poetry --version && \
     gcloud --version && \
     aws --version && \
     gke-gcloud-auth-plugin --version && \
+    terraform --version && \
     node --version && \
     yarn --version
