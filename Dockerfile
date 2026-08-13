@@ -68,8 +68,11 @@ RUN set -ex && \
     # --- Taskfile --- \
     curl -fsSL https://taskfile.dev/install.sh | sh -s v${TASKFILE_VERSION} && \
     # --- Terraform --- \
-    curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" -o terraform.zip && \
-    unzip -q terraform.zip -d /usr/local/bin terraform && rm -f terraform.zip && \
+    curl -fsSLO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" && \
+    curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS" -o terraform_SHA256SUMS && \
+    grep " terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" terraform_SHA256SUMS | sha256sum -c - && \
+    unzip -q "terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" -d /usr/local/bin terraform && \
+    rm -f "terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" terraform_SHA256SUMS && \
     chmod 755 /usr/local/bin/terraform && \
     # --- NVM / Node / npm / yarn --- \
     curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh" | bash && \
