@@ -37,6 +37,7 @@ RUN apt-get update -y && \
       ruby \
       ruby-dev \
       unzip \
+      xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- 2. Tool installations (single layer) ----------
