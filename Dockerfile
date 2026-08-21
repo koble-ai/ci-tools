@@ -13,6 +13,7 @@ ARG MODD_VERSION=0.5
 ARG TASKFILE_VERSION=3.2.2
 ARG POETRY_VERSION=1.8.5
 ARG TERRAFORM_VERSION=1.15.8
+ARG CURL_VERSION=8.21.0
 ARG TARGETARCH
 
 # ---------- 1. System packages (single layer) ----------
@@ -40,6 +41,20 @@ RUN apt-get update -y && \
 
 # ---------- 2. Tool installations (single layer) ----------
 RUN set -ex && \
+    # --- Fresh curl (bullseye's apt curl is 7.74.0, which predates --fail-with-body) --- \
+    if [ "$TARGETARCH" = "amd64" ]; then \
+      CURL_STATIC_ARCH=x86_64; \
+      CURL_STATIC_SHA256=53368902f64d4d1a4c4d12e31b82caba118d11e393e68a98ecf2723e212a735b; \
+    else \
+      CURL_STATIC_ARCH=aarch64; \
+      CURL_STATIC_SHA256=b4dc444e76f5c977fcc892a7479359bbc1fe62516a24cf7fdb1caf846f465f3b; \
+    fi && \
+    curl -fsSL "https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-linux-${CURL_STATIC_ARCH}-glibc-${CURL_VERSION}.tar.xz" -o /tmp/curl.tar.xz && \
+    tar -xJf /tmp/curl.tar.xz -C /tmp curl && \
+    echo "${CURL_STATIC_SHA256}  /tmp/curl" | sha256sum -c - && \
+    install -m 0755 /tmp/curl /usr/local/bin/curl && \
+    rm -f /tmp/curl.tar.xz /tmp/curl && \
+    hash -r && \
     # --- AWS CLI --- \
     if [ "$TARGETARCH" = "amd64" ]; then \
       curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip; \
@@ -104,7 +119,9 @@ RUN set -ex && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache
 
 # ---------- 3. Verification ----------
-RUN poetry --version && \
+RUN curl --version | grep -q 'curl 8' && \
+    curl --help all | grep -q -- --fail-with-body && \
+    poetry --version && \
     uv --version && \
     pyright --version && \
     gcloud --version && \
