@@ -1,10 +1,10 @@
-FROM python:3.11.12-slim-bullseye
+FROM python:3.11.12-slim-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     NVM_DIR=/root/.nvm \
     POETRY_HOME=/opt/poetry \
-    PATH=/root/.nvm/versions/node/current/bin:/opt/google-cloud-sdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
+    PATH=/root/.nvm/versions/node/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
 
 ARG NODE_VERSION=22
 ARG NPM_VERSION=11.3.0
@@ -13,7 +13,7 @@ ARG MODD_VERSION=0.5
 ARG TASKFILE_VERSION=3.2.2
 ARG POETRY_VERSION=1.8.5
 ARG TERRAFORM_VERSION=1.15.8
-ARG CURL_VERSION=8.21.0
+ARG KUBECTL_VERSION=1.35
 ARG TARGETARCH
 
 # ---------- 1. System packages (single layer) ----------
@@ -37,25 +37,10 @@ RUN apt-get update -y && \
       ruby \
       ruby-dev \
       unzip \
-      xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- 2. Tool installations (single layer) ----------
 RUN set -ex && \
-    # --- Fresh curl (bullseye's apt curl is 7.74.0, which predates --fail-with-body) --- \
-    if [ "$TARGETARCH" = "amd64" ]; then \
-      CURL_STATIC_ARCH=x86_64; \
-      CURL_STATIC_SHA256=53368902f64d4d1a4c4d12e31b82caba118d11e393e68a98ecf2723e212a735b; \
-    else \
-      CURL_STATIC_ARCH=aarch64; \
-      CURL_STATIC_SHA256=b4dc444e76f5c977fcc892a7479359bbc1fe62516a24cf7fdb1caf846f465f3b; \
-    fi && \
-    curl -fsSL "https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-linux-${CURL_STATIC_ARCH}-glibc-${CURL_VERSION}.tar.xz" -o /tmp/curl.tar.xz && \
-    tar -xJf /tmp/curl.tar.xz -C /tmp curl && \
-    echo "${CURL_STATIC_SHA256}  /tmp/curl" | sha256sum -c - && \
-    install -m 0755 /tmp/curl /usr/local/bin/curl && \
-    rm -f /tmp/curl.tar.xz /tmp/curl && \
-    hash -r && \
     # --- AWS CLI --- \
     if [ "$TARGETARCH" = "amd64" ]; then \
       curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip; \
@@ -105,23 +90,23 @@ RUN set -ex && \
     # --- Docker --- \
     curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && rm -f get-docker.sh && \
     # --- kubectl --- \
-    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
+    curl -fsSL "https://pkgs.k8s.io/core:/stable:/v${KUBECTL_VERSION}/deb/Release.key" | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
     chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
-    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' > /etc/apt/sources.list.d/kubernetes.list && \
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${KUBECTL_VERSION}/deb/ /" > /etc/apt/sources.list.d/kubernetes.list && \
     chmod 644 /etc/apt/sources.list.d/kubernetes.list && \
     apt-get update -y && apt-get install -y kubectl && \
-    # --- gcloud (standalone installer — avoids apt python3>=3.10 dep on bullseye) --- \
-    curl -fsSL https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz | tar -xz -C /opt && \
-    /opt/google-cloud-sdk/install.sh --quiet --path-update=false && \
-    /opt/google-cloud-sdk/bin/gcloud components install gke-gcloud-auth-plugin --quiet && \
-    rm -rf /opt/google-cloud-sdk/.install/.backup && \
+    # --- gcloud --- \
+    curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
+    chmod 644 /etc/apt/keyrings/cloud.google.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    chmod 644 /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    apt-get update -y && apt-get install -y --no-install-recommends google-cloud-cli google-cloud-cli-gke-gcloud-auth-plugin && \
     # --- Final cleanup --- \
     apt-get -qq -y autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache
 
 # ---------- 3. Verification ----------
-RUN curl --version | grep -q 'curl 8' && \
-    curl --help all | grep -q -- --fail-with-body && \
+RUN curl --help all | grep -q -- --fail-with-body && \
     poetry --version && \
     uv --version && \
     pyright --version && \

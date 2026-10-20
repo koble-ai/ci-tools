@@ -30,7 +30,7 @@ There are no tests, linters, or package managers — the project is a single Doc
 | `NVM_VERSION` | 0.40.2 | |
 | `POETRY_VERSION` | 1.8.5 | |
 | `TERRAFORM_VERSION` | 1.15.8 | |
-| `CURL_VERSION` | 8.21.0 | Static curl from `stunnel/static-curl`; bullseye's apt curl (7.74.0) predates `--fail-with-body` |
+| `KUBECTL_VERSION` | 1.35 | Minor version only — selects the `pkgs.k8s.io` apt repo |
 | `TASKFILE_VERSION` | 3.2.2 | |
 | `MODD_VERSION` | 0.5 | |
 | `TARGETARCH` | auto | Set by buildx; controls amd64 vs arm64 download URLs |
@@ -46,7 +46,7 @@ There are no tests, linters, or package managers — the project is a single Doc
 
 ## Architecture Notes
 
-- **Base image**: `python:3.11.12-slim-bullseye` (Debian)
+- **Base image**: `python:3.11.12-slim-bookworm` (Debian 12)
 - **Node management**: NVM installs Node, then a symlink at `/root/.nvm/versions/node/current` is added to PATH so Node is available without sourcing NVM
 - **Architecture-conditional installs**: AWS CLI, modd, and other tools use `TARGETARCH` to select the correct binary (amd64 vs arm64)
 - **Verification**: The Dockerfile ends with version-check `RUN` commands (`poetry --version`, `aws --version`, etc.) that serve as build-time smoke tests
