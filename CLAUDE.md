@@ -31,6 +31,7 @@ There are no tests, linters, or package managers — the project is a single Doc
 | `POETRY_VERSION` | 1.8.5 | |
 | `TERRAFORM_VERSION` | 1.15.8 | |
 | `CURL_VERSION` | 8.21.0 | Static curl from `stunnel/static-curl`; bullseye's apt curl (7.74.0) predates `--fail-with-body` |
+| `KUBECTL_VERSION` | 1.35 | Minor version only — selects the `pkgs.k8s.io` apt repo |
 | `TASKFILE_VERSION` | 3.2.2 | |
 | `MODD_VERSION` | 0.5 | |
 | `TARGETARCH` | auto | Set by buildx; controls amd64 vs arm64 download URLs |
