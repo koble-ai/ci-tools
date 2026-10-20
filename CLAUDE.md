@@ -47,7 +47,7 @@ There are no tests, linters, or package managers — the project is a single Doc
 
 ## Architecture Notes
 
-- **Base image**: `python:3.11.12-slim-bullseye` (Debian)
+- **Base image**: `python:3.11.12-slim-bookworm` (Debian 12)
 - **Node management**: NVM installs Node, then a symlink at `/root/.nvm/versions/node/current` is added to PATH so Node is available without sourcing NVM
 - **Architecture-conditional installs**: AWS CLI, modd, and other tools use `TARGETARCH` to select the correct binary (amd64 vs arm64)
 - **Verification**: The Dockerfile ends with version-check `RUN` commands (`poetry --version`, `aws --version`, etc.) that serve as build-time smoke tests

@@ -1,4 +1,4 @@
-FROM python:3.11.12-slim-bullseye
+FROM python:3.11.12-slim-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
