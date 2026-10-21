@@ -55,12 +55,15 @@ ARG PLAYWRIGHT_VERSION=1.64.1
 # The official Playwright images' location; every job on this image finds the browser here.
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
+# The screenshot is the smoke test: it launches the installed Chromium and renders a page, so a
+# missing shared library or a broken binary on either architecture fails the build.
 RUN npx -y "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium && \
+    npx -y "playwright@${PLAYWRIGHT_VERSION}" screenshot --browser chromium "data:text/html,<h1>ok</h1>" /tmp/smoke.png && \
+    test -s /tmp/smoke.png && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache /root/.npm
 
 RUN node --version && \
-    yarn --version && \
-    ls /ms-playwright | grep -q '^chromium'
+    yarn --version
 
 # ---------- ci-tools ----------
 FROM node AS ci-tools
