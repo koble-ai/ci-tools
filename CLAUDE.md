@@ -8,7 +8,7 @@ ci-tools is a multi-architecture (amd64/arm64) set of Docker CI images, publishe
 
 | Stage | Published as | What |
 |-------|--------------|------|
-| `node` | — (shared base) | Debian + Node/npm/yarn + build essentials |
+| `node` | — (shared base) | Debian + Node/npm/yarn + AWS CLI (koble's yarn plugin uses it for the CodeArtifact token) + build essentials |
 | `playwright` | `node-N-playwright` | `node` + Playwright's chromium and its system deps at `/ms-playwright`, for e2e jobs |
 | `ci-tools` (default) | `node-N`, `latest`, SHA | `node` + Python tooling, cloud CLIs, Docker, Terraform, kubectl |
 
