@@ -1,14 +1,73 @@
-FROM python:3.11.12-slim-bookworm
+# Three stages, two published images:
+#   node        — Debian + Node/npm/yarn and the build essentials. Shared base, not published.
+#   playwright  — node + Playwright's chromium and its system deps, for e2e jobs (tag node-N-playwright).
+#   ci-tools    — node + Python tooling, cloud CLIs, Docker, Terraform, kubectl (tag node-N). The default target.
+
+# ---------- node ----------
+FROM python:3.11.12-slim-bookworm AS node
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     NVM_DIR=/root/.nvm \
-    POETRY_HOME=/opt/poetry \
-    PATH=/root/.nvm/versions/node/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
+    PATH=/root/.nvm/versions/node/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 ARG NODE_VERSION=22
 ARG NPM_VERSION=11.3.0
 ARG NVM_VERSION=0.40.2
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+      bzip2 \
+      ca-certificates \
+      curl \
+      g++ \
+      gcc \
+      git \
+      gnupg \
+      jq \
+      make \
+      openssh-client \
+      procps \
+      unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN set -ex && \
+    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh" | bash && \
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
+    nvm install ${NODE_VERSION} && \
+    nvm alias default ${NODE_VERSION} && \
+    ln -s "/root/.nvm/versions/node/$(nvm version ${NODE_VERSION})" /root/.nvm/versions/node/current && \
+    npm install -g npm@${NPM_VERSION} && \
+    npm cache clean --force && \
+    curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && apt-get install -y --no-install-recommends yarn && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache
+
+# ---------- playwright ----------
+FROM node AS playwright
+
+# Match the @playwright/test the koble-platform frontends pin. A job on a different version still
+# works: its `playwright install chromium` downloads that version's browser — but not the system
+# deps, which this image already has.
+ARG PLAYWRIGHT_VERSION=1.64.1
+
+# The official Playwright images' location; every job on this image finds the browser here.
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+RUN npx -y "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache /root/.npm
+
+RUN node --version && \
+    yarn --version && \
+    ls /ms-playwright | grep -q '^chromium'
+
+# ---------- ci-tools ----------
+FROM node AS ci-tools
+
+ENV POETRY_HOME=/opt/poetry \
+    PATH=/root/.nvm/versions/node/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/poetry/bin
+
 ARG MODD_VERSION=0.5
 ARG TASKFILE_VERSION=3.2.2
 ARG POETRY_VERSION=1.8.5
@@ -19,24 +78,13 @@ ARG TARGETARCH
 # ---------- 1. System packages (single layer) ----------
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
-      bzip2 \
-      ca-certificates \
-      curl \
-      g++ \
-      gcc \
-      git \
-      gnupg \
       groff \
-      jq \
       less \
       libmcrypt-dev \
       libreadline-dev \
       libssl-dev \
-      make \
-      openssh-client \
       ruby \
       ruby-dev \
-      unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- 2. Tool installations (single layer) ----------
@@ -75,18 +123,9 @@ RUN set -ex && \
     unzip -q "terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" -d /usr/local/bin terraform && \
     rm -f "terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" terraform_SHA256SUMS && \
     chmod 755 /usr/local/bin/terraform && \
-    # --- NVM / Node / npm / yarn --- \
-    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh" | bash && \
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
-    nvm install ${NODE_VERSION} && \
-    nvm alias default ${NODE_VERSION} && \
-    ln -s "/root/.nvm/versions/node/$(nvm version ${NODE_VERSION})" /root/.nvm/versions/node/current && \
-    npm install -g npm@${NPM_VERSION} && \
+    # --- pyright --- \
     npm install -g pyright pyright-to-gitlab-ci && \
     npm cache clean --force && \
-    curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" >> /etc/apt/sources.list.d/yarn.list && \
-    apt-get update && apt-get install -y --no-install-recommends yarn && \
     # --- Docker --- \
     curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && rm -f get-docker.sh && \
     # --- kubectl --- \
