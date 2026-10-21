@@ -1,5 +1,5 @@
 # Three stages, two published images:
-#   node        — Debian + Node/npm/yarn and the build essentials. Shared base, not published.
+#   node        — Debian + Node/npm/yarn, the AWS CLI and the build essentials. Shared base, not published.
 #   playwright  — node + Playwright's chromium and its system deps, for e2e jobs (tag node-N-playwright).
 #   ci-tools    — node + Python tooling, cloud CLIs, Docker, Terraform, kubectl (tag node-N). The default target.
 
@@ -14,6 +14,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 ARG NODE_VERSION=22
 ARG NPM_VERSION=11.3.0
 ARG NVM_VERSION=0.40.2
+ARG TARGETARCH
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
@@ -44,6 +45,24 @@ RUN set -ex && \
     apt-get update && apt-get install -y --no-install-recommends yarn && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache
 
+# AWS CLI: the koble yarn plugin (codeartifact-connect) shells out to it for the CodeArtifact token,
+# so every image that runs `yarn` needs it. Pinned, and verified the way AWS documents: a PGP
+# signature by the AWS CLI Team key (aws-cli.asc, from the AWS CLI install guide). The check is on
+# the signing key's fingerprint, so a swapped or corrupted key file fails the build too.
+ARG AWS_CLI_VERSION=2.38.3
+ARG AWS_CLI_KEY_FINGERPRINT=FB5DB77FD5C118B80511ADA8A6310ACC4672475C
+COPY aws-cli.asc /tmp/aws-cli.asc
+RUN set -ex && \
+    if [ "$TARGETARCH" = "amd64" ]; then AWS_ARCH=x86_64; else AWS_ARCH=aarch64; fi && \
+    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}-${AWS_CLI_VERSION}.zip" -o awscliv2.zip && \
+    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}-${AWS_CLI_VERSION}.zip.sig" -o awscliv2.sig && \
+    export GNUPGHOME="$(mktemp -d)" && \
+    gpg --batch --import /tmp/aws-cli.asc && \
+    gpg --batch --status-fd 1 --verify awscliv2.sig awscliv2.zip | grep -q "^\[GNUPG:\] VALIDSIG .*${AWS_CLI_KEY_FINGERPRINT}" && \
+    unzip -q awscliv2.zip && ./aws/install && \
+    rm -rf aws awscliv2.zip awscliv2.sig "$GNUPGHOME" /tmp/aws-cli.asc && \
+    aws --version
+
 # ---------- playwright ----------
 FROM node AS playwright
 
@@ -69,7 +88,8 @@ RUN npx -y "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache /root/.npm
 
 RUN node --version && \
-    yarn --version
+    yarn --version && \
+    aws --version
 
 # ---------- ci-tools ----------
 FROM node AS ci-tools
@@ -98,13 +118,6 @@ RUN apt-get update -y && \
 
 # ---------- 2. Tool installations (single layer) ----------
 RUN set -ex && \
-    # --- AWS CLI --- \
-    if [ "$TARGETARCH" = "amd64" ]; then \
-      curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip; \
-    else \
-      curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o awscliv2.zip; \
-    fi && \
-    unzip -q awscliv2.zip && ./aws/install && rm -rf aws awscliv2.zip && \
     # --- pip tools --- \
     pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir pipenv boto3 uv keyring keyrings.codeartifact && \
