@@ -42,6 +42,7 @@ There are no tests, linters, or package managers — the project is a single Doc
 | `KUBECTL_VERSION` | 1.35 | Minor version only — selects the `pkgs.k8s.io` apt repo |
 | `TASKFILE_VERSION` | 3.2.2 | |
 | `MODD_VERSION` | 0.5 | |
+| `AWS_CLI_VERSION` | 2.38.3 | `node` stage. PGP-verified against `aws-cli.asc` (AWS CLI Team key, fingerprint `AWS_CLI_KEY_FINGERPRINT`); if AWS rotates the key, replace the file from the AWS CLI install guide and update the fingerprint |
 | `PLAYWRIGHT_VERSION` | 1.64.1 | `playwright` stage. Keep in step with koble-platform's `@playwright/test` — a job on another version still works but downloads its own browser |
 | `TARGETARCH` | auto | Set by buildx; controls amd64 vs arm64 download URLs |
 
