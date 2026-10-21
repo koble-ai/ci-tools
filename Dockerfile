@@ -55,11 +55,17 @@ ARG PLAYWRIGHT_VERSION=1.64.1
 # The official Playwright images' location; every job on this image finds the browser here.
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
+ARG TARGETARCH
+ARG BUILDARCH
+
 # The screenshot is the smoke test: it launches the installed Chromium and renders a page, so a
-# missing shared library or a broken binary on either architecture fails the build.
+# missing shared library or a broken binary fails the build. Chromium cannot run under QEMU, so it
+# only runs on a native build — on CI that's amd64; arm64 is checked by building on Apple Silicon.
 RUN npx -y "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium && \
-    npx -y "playwright@${PLAYWRIGHT_VERSION}" screenshot --browser chromium "data:text/html,<h1>ok</h1>" /tmp/smoke.png && \
-    test -s /tmp/smoke.png && \
+    if [ "$TARGETARCH" = "$BUILDARCH" ]; then \
+      npx -y "playwright@${PLAYWRIGHT_VERSION}" screenshot --browser chromium "data:text/html,<h1>ok</h1>" /tmp/smoke.png && \
+      test -s /tmp/smoke.png; \
+    fi && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache /root/.npm
 
 RUN node --version && \
